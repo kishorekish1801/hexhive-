@@ -1,0 +1,92 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id   Int    @id @default(autoincrement())
+  slug String @unique
+
+  name   String
+  nameSv String?
+
+  category String
+
+  price  Decimal
+  rating Decimal
+
+  description   String
+  descriptionSv String?
+
+  material   String
+  colors     String[]
+  dimensions String
+  printTime  String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  imageUrl String?
+
+  orderItems OrderItem[]
+}
+
+model Order {
+  id           Int      @id @default(autoincrement())
+  customerName String
+  email        String
+  phone        String?
+  address      String
+  city         String
+  postalCode   String
+  country      String
+  total        Decimal
+  status       String   @default("PENDING")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  items OrderItem[]
+}
+
+model OrderItem {
+  id          Int     @id @default(autoincrement())
+  quantity    Int
+  price       Decimal
+  productName String
+
+  orderId   Int
+  productId Int
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+}
+
+model CustomPrintQuote {
+  id Int @id @default(autoincrement())
+
+  customerName String
+  email        String
+  phone        String?
+
+  modelFiles Json?
+
+  referenceImages Json?
+
+  material        String
+  color           String
+  quantity        Int     @default(1)
+  printQuality    String
+  additionalNotes String?
+
+  status            String   @default("NEW")
+  quotedPrice       Decimal?
+  estimatedDelivery String?
+  adminNotes        String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
